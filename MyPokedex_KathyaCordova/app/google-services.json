@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1078939840364",
+    "project_id": "mypokedex-kathyacordova",
+    "storage_bucket": "mypokedex-kathyacordova.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078939840364:android:8e49660c00c1f2afef8d49",
+        "android_client_info": {
+          "package_name": "cordova.kathya.mypokedex_kathyacordova"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8tlFYfY1q3DU6Ejc8L0PS2w3sm0B_NDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
