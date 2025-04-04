@@ -8,14 +8,20 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 
 class RegisterPokemon : AppCompatActivity() {
 
+    private val pokemonRef = FirebaseDatabase.getInstance().getReference("Pokemon")
     val REQUEST_IMAGE_GET = 1
     val CLOUD_NAME = "dspqrquds"
     val UPLOAD_PRESET = "pokemon-upload"
@@ -25,9 +31,8 @@ class RegisterPokemon : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_register_pokemon)
+        initCloudinary()
 
-        val name: EditText = findViewById(R.id.pokemonName)
-        val pNumber: EditText = findViewById(R.id.pokemonNumber)
         val select: Button = findViewById(R.id.selectImage)
         val save: Button = findViewById(R.id.savePokemon)
 
@@ -38,14 +43,29 @@ class RegisterPokemon : AppCompatActivity() {
         }
 
         save.setOnClickListener {
-            savePokemon { url ->
-                if (url.isNotEmpty()) {
-                    Log.d("MiApp", "Imagen subida con éxito: $url")
+            savePokemon { imageUrl ->
+                if (imageUrl.isNotEmpty()) {
+                    saveMarkFromForm(imageUrl)
+                    finish()
                 } else {
                     Log.d("MiApp", "Error al subir la imagen")
                 }
             }
         }
+
+
+        pokemonRef.addChildEventListener(object : ChildEventListener {
+            override fun onCancelled(databaseError : DatabaseError){}
+            override fun onChildMoved(dataSnapshot: DataSnapshot, previousName: String?) {}
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousName: String?) {}
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {}
+
+            override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {
+                val pokemon = dataSnapshot.getValue(Pokemon::class.java)
+                if(pokemon != null) writeMark(pokemon)
+            }
+
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -106,5 +126,24 @@ class RegisterPokemon : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun saveMarkFromForm(imageUrl: String){
+        val name: EditText = findViewById(R.id.pokemonName) as EditText
+        val pNumber: EditText = findViewById(R.id.pokemonNumber) as EditText
+
+
+        val pokemon = Pokemon(
+            name.text.toString(),
+            pNumber.text.toString(),
+            imageUrl
+        )
+        pokemonRef.push().setValue(pokemon)
+    }
+
+    private fun writeMark(mark: Pokemon){
+        var listV: TextView = findViewById(R.id.infoPokemon) as TextView
+        val text = listV.text.toString() + mark.toString() + "\n"
+        listV.text = text
     }
 }
